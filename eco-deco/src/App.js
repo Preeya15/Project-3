@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { commerce } from './lib/commerce';
 import {Navbar, Products, Cart} from './components';
 import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
+import { CssBaseline } from '@material-ui/core';
+// import Commerce from '@chec/commerce.js';
 
 
 const App = () => {
@@ -19,9 +21,28 @@ const App = () => {
   }
 
   const handleAddToCart = async (productId, quantity) => {
-    const item = await commerce.cart.add (productId, quantity);
+    const { cart } = await commerce.cart.add (productId, quantity);
     
-    setCart(item.cart);
+    setCart(cart);
+  }
+
+  const handleUpdateCartQty = async (productId, quantity )=> {
+    const { cart } = await commerce.cart.update (productId, {quantity});
+
+    setCart(cart);
+  }
+
+  const handleRemoveFromCart = async (productId) => {
+    const { cart } = await commerce.cart.remove(productId);
+
+    setCart(cart);
+
+  }
+
+  const handleEmptyCart = async () => {
+    const { cart } = await commerce.cart.empty ();
+
+    setCart(cart);
   }
 
   useEffect(() => {
@@ -34,18 +55,22 @@ const App = () => {
 
   return (
     <Router>
-    <div>
-      <Navbar totalItems={cart.total_items} />
+    <div style={{ display: 'flex' }}>
+      <CssBaseline />
+      <Navbar totalItems={cart.total_items}/>
       <Switch>
         <Route exact path="/">
-          <Products products={products} onAddToCart ={handleAddToCart}/>
+          <Products products={products} onAddToCart={handleAddToCart} handleUpdateCartQty />
         </Route>
-          <cart cart={Cart} /> 
         <Route exact path="/cart">
+          <Cart cart={cart} onUpdateCartQty={handleUpdateCartQty} onRemoveFromCart={handleRemoveFromCart} onEmptyCart={handleEmptyCart} />
         </Route>
+        {/* <Route path="/checkout" exact>
+          <Checkout cart={cart} order={order} onCaptureCheckout={handleCaptureCheckout} error={errorMessage} />
+        </Route> */}
       </Switch>
     </div>
-    </Router>
+  </Router>
   );
 };
 
